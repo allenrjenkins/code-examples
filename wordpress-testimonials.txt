@@ -1,0 +1,74 @@
+<?php
+
+/**
+ * @package WP Testimonials
+ */
+/*
+  Plugin Name: WP Testimonials 
+  Description: Post testimonials to your wordpress site
+  Version: 1.0
+  Author: Allen Jenkins 
+  License: GPLv2 or later 
+ */
+
+// Register the Custom Testimonial Post Type
+
+function register_cpt_sg_testimonials() {
+
+    $labels = array(
+        'name' => _x('Testimonials', 'sg_testimonials'),
+        'singular_name' => _x('Testimonial', 'sg_testimonial'),
+        'add_new' => _x('Add New', 'sg_testimonial'),
+        'add_new_item' => _x('Add New Testimonial', 'sg_testimonial'),
+        'edit_item' => _x('Edit Testimonial', 'sg_testimonial'),
+        'new_item' => _x('New Testimonial', 'sg_testimonial'),
+        'view_item' => _x('View Testimonial', 'sg_testimonial'),
+        'search_items' => _x('Search Testimonials', 'sg_testimonial'),
+        'not_found' => _x('No testimonials found', 'sg_testimonial'),
+        'not_found_in_trash' => _x('No testimonials found in Trash', 'sg_testimonial'),
+        'parent_item_colon' => _x('Parent Testimonial:', 'sg_testimonial'),
+        'menu_name' => _x('Testimonials', 'sg_testimonial'),
+    );
+
+    $args = array(
+        'labels' => $labels,
+        'hierarchical' => true,
+        'description' => 'Testimonials filterable by typeof',
+        'supports' => array('title', 'editor', 'author', 'thumbnail', 'trackbacks', 'custom-fields', 'comments', 'revisions', 'page-attributes'),
+        'taxonomies' => array('typeof'),
+        'public' => true,
+        'show_ui' => true,
+        'show_in_menu' => true,
+        'menu_position' => 5,
+        'menu_icon' => 'dashicons-format-status',
+        'show_in_nav_menus' => true,
+        'publicly_queryable' => true,
+        'exclude_from_search' => false,
+        'has_archive' => true,
+        'query_var' => true,
+        'can_export' => true,
+        'rewrite' => true,
+        'capability_type' => 'post'
+    );
+
+    register_post_type('sg_testimonial', $args);
+}
+
+add_action('init', 'register_cpt_sg_testimonials');
+
+function typeof_taxonomy() {
+    register_taxonomy(
+            'typeof', 'sg_testimonial', array(
+        'hierarchical' => true,
+        'label' => 'Types',
+        'query_var' => true,
+        'rewrite' => array(
+            'slug' => 'typeof',
+            'with_front' => false
+        )
+            )
+    );
+}
+
+add_action('init', 'typeof_taxonomy');
+

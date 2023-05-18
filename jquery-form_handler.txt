@@ -1,0 +1,158 @@
+$(function() {
+    $(".ajaxFormLoader").on("submit", function(g) {
+        g.preventDefault();
+        var b = $(this).attr("action");
+        var h = $(this).attr("method");
+        var f = $(this).serialize();
+        var d = $(this);
+        var a = $(this).find("input[type=submit]");
+        var c = a.attr("value");
+        form_clear_messages(d);
+        d.find("input,button").prop("disabled", true);
+        a.attr("value", "Processing...");
+        switch (h) {
+            case "JSONP":
+            case "jsonp":
+                $.ajax({
+                    url: b,
+                    dataType: "jsonp",
+                    data: f,
+                    success: function(e) {
+                        a.attr("value", c);
+                        form_handle_response(e, d)
+                    },
+                    error: function(i) {
+                        a.attr("value", c);
+                        form_handle_failure(i, d)
+                    }
+                });
+                break;
+            default:
+                $.post(b, f, function(e) {
+                    a.attr("value", c);
+                    form_handle_response(e, d)
+                }, "json").fail(function(i) {
+                    a.attr("value", c);
+                    form_handle_failure(i, d)
+                });
+                break
+        }
+    })
+});
+
+function form_handle_response(b, a) {
+    if (typeof b.error !== "undefined") {
+        console.error(b.error);
+        form_show_error(b.error);
+        a.find("input,button").prop("disabled", false);
+        if (typeof b.fields !== "undefined" && b.fields.length > 0) {
+            $.each(b.fields, function(d, c) {
+                form_show_input_error(a, c)
+            })
+        }
+    } else {
+        if (typeof b.success !== "undefined") {
+            if (typeof b.redirect_url !== "undefined") {
+                window.location = b.redirect_url;
+                return
+            }
+            form_show_success(b.success)
+        } else {
+            console.error("There was an unknown error when submitting this form. Please try again.");
+            form_show_error("There was an unknown error when submitting this form. Please try again.");
+            a.find("input,button").prop("disabled", false)
+        }
+    }
+}
+
+function form_handle_failure(b, a) {
+    console.error("Error submitting form: Error #" + b.status + ": " + b.responseText);
+    form_show_error("There was an unknown error when submitting this form. Please try again.");
+    a.find("input,button").prop("disabled", false)
+}
+
+function form_clear_messages(a) {
+    $(".form_message:visible").each(function() {
+        $(this).slideUp()
+    });
+    a.find("input.has-error").each(function() {
+        $(this).removeClass("has-error")
+    });
+    a.find('span[class*="error-message"].is-visible').each(function() {
+        $(this).removeClass("is-visible")
+    })
+}
+
+function form_show_success(c) {
+    var a = $(".form_message.success");
+    if (a.length > 0) {
+        var b = a.find("p");
+        if (b.length > 0) {
+            b.html('<div style="margin:10px; padding:15px; background-color: #d2ebde !important; color: #378e5d !important;""><i class="fa fa-fw fa-check-circle"></i> ' + c + "</div>");
+            a.slideDown()
+        } else {
+            alert(c)
+        }
+    } else {
+        alert(c)
+    }
+}
+
+function form_show_error(c) {
+    var a = $(".form_message.error");
+    if (a.length > 0) {
+        var b = a.find("p");
+        if (b.length > 0) {
+            b.html('<div style="margin:10px; padding:15px; background-color: #f9e8eb !important; color: #cc2141 !important;""><i class="fa fa-fw fa-exclamation-circle"></i> ' + c + "</div>");
+            a.slideDown()
+        } else {
+            alert(c)
+        }
+    } else {
+        alert(c)
+    }
+}
+
+function form_show_input_error(c, d) {
+    var b = c.find(d);
+    if (b.length < 1) {
+        return
+    }
+    b.addClass("has-error");
+    var a = b.parent().find('span[class$="error-message"]');
+    if (a.length > 0) {
+        a.addClass("is-visible")
+    }
+    b.on("focus", function() {
+        clear_input_error($(this));
+        $(this).off("focus")
+    })
+}
+
+function clear_input_error(a) {
+    if (a.has(".has-error")) {
+        a.removeClass("has-error");
+        var b = a.parent().find('span[class*="error-message"].is-visible');
+        if (b.length > 0) {
+            b.removeClass("is-visible")
+        }
+    }
+}
+$(function() {
+    $(".ajaxFormLoader").find('input[type="text"]').each(function() {
+        if ($(this).val().length > 0) {
+            $(this).attr("default", $(this).val());
+            $(this).on("focus", function() {
+                if ($(this).attr("default") === $(this).val()) {
+                    $(this).val("");
+                    $(this).on("blur", function() {
+                        $(this).off("blur");
+                        if ($(this).val() === "") {
+                            $(this).val($(this).attr("default"))
+                        }
+                    })
+                }
+            })
+        }
+    })
+});

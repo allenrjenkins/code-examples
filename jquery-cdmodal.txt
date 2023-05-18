@@ -1,0 +1,81 @@
+jQuery(document).ready(function(e) {
+    var a = e(".cd-user-modal"),
+        n = a.find("#cd-login"),
+        m = a.find("#cd-signup"),
+        c = a.find("#cd-reset-password"),
+        d = e(".cd-switcher"),
+        i = d.children("li").eq(0).children("a"),
+        k = d.children("li").eq(1).children("a"),
+        b = n.find(".cd-form-bottom-message a"),
+        l = c.find(".cd-form-bottom-message a"),
+        g = e(".createAccount");
+    g.on("click", function(o) {
+        a.addClass("is-visible");
+        (e(o.target).is(".cd-signup")) ? h(): f()
+    });
+    e(".cd-user-modal").on("click", function(o) {
+        if (e(o.target).is(a) || e(o.target).is(".cd-close-form")) {
+            a.removeClass("is-visible")
+        }
+    });
+    e(document).keyup(function(o) {
+        if (o.which == "27") {
+            a.removeClass("is-visible")
+        }
+    });
+    d.on("click", function(o) {
+        o.preventDefault();
+        (e(o.target).is(i)) ? f(): h()
+    });
+    e("#select-question-id").on("change", function() {
+        e("#question-answer-section").removeClass("hide");
+        e("#select-question-option").remove()
+    });
+    e(".hide-password").on("click", function() {
+        var p = e(this),
+            o = p.prev("input");
+        ("password" == o.attr("type")) ? o.attr("type", "text"): o.attr("type", "password");
+        ("Hide" == p.text()) ? p.text("Show"): p.text("Hide");
+        o.putCursorAtEnd()
+    });
+    b.on("click", function(o) {
+        o.preventDefault();
+        j()
+    });
+    l.on("click", function(o) {
+        o.preventDefault();
+        f()
+    });
+
+    function f() {
+        n.addClass("is-selected");
+        m.removeClass("is-selected");
+        c.removeClass("is-selected");
+        i.addClass("selected");
+        k.removeClass("selected")
+    }
+
+    function h() {
+        n.removeClass("is-selected");
+        m.addClass("is-selected");
+        c.removeClass("is-selected");
+        i.removeClass("selected");
+        k.addClass("selected")
+    }
+
+    function j() {
+        n.removeClass("is-selected");
+        m.removeClass("is-selected");
+        c.addClass("is-selected")
+    }
+});
+jQuery.fn.putCursorAtEnd = function() {
+    return this.each(function() {
+        if (this.setSelectionRange) {
+            var a = $(this).val().length * 2;
+            this.setSelectionRange(a, a)
+        } else {
+            $(this).val($(this).val())
+        }
+    })
+};
